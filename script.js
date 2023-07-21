@@ -1,83 +1,158 @@
-// Initialize the board
-let board = [['', '', ''], ['', '', ''], ['', '', '']];
-let currentPlayer = 'X';
-let gameOver = false;
-
-// Function to update the UI
-function updateUI() {
-  for (let row = 0; row < 3; row++) {
-    for (let col = 0; col < 3; col++) {
-      let cell = document.getElementById(`cell-${row}-${col}`);
-      cell.textContent = board[row][col];
-    }
+const GameCtrl = (function () {
+  const data = {
+    board: [
+      ["", "", ""],
+      ["", "", ""],
+      ["", "", ""],
+    ],
+    currentPlayer: "X",
+    gameOver: false,
   }
-}
 
-// Function to check if the board is full
-function isBoardFull() {
-  for (let row = 0; row < 3; row++) {
-    for (let col = 0; col < 3; col++) {
-      if (board[row][col] === '') {
-        return false;
+  return {
+    isBoardFull: function () {
+      for (let row = 0; row < 3; row++) {
+        for (let col = 0; col < 3; col++) {
+          if (data.board[row][col] === "") {
+            return false
+          }
+        }
+      }
+      return true
+    },
+    getCurrentPlayer: function () {
+      return data.currentPlayer
+    },
+    setCurrentPlayer: function (player) {
+      data.currentPlayer = player
+    },
+    changePlayer: function () {
+      data.currentPlayer = data.currentPlayer === "X" ? "O" : "X"
+    },
+    getGameOver: function () {
+      return data.gameOver
+    },
+    setGameOver: function (val) {
+      data.gameOver = val
+    },
+    markBoard: function (row, col) {
+      data.board[row][col] = data.currentPlayer
+    },
+    getCellData: function (row, col) {
+      return data.board[row][col]
+    },
+    getDataLog: function () {
+      return data
+    },
+    checkWinner: function (player) {
+      for (let i = 0; i < 3; i++) {
+        if (data.board[i][0] === player && data.board[i][1] === player && data.board[i][2] === player) {
+          return true
+        }
+        if (data.board[0][i] === player && data.board[1][i] === player && data.board[2][i] === player) {
+          return true
+        }
+      }
+      if (data.board[0][0] === player && data.board[1][1] === player && data.board[2][2] === player) {
+        return true
+      }
+      if (data.board[0][2] === player && data.board[1][1] === player && data.board[2][0] === player) {
+        return true
+      }
+      return false
+    },
+    resetBoard: function () {
+      for (let row = 0; row < 3; row++) {
+        for (let col = 0; col < 3; col++) {
+          data.board[row][col] = ""
+        }
       }
     }
   }
-  return true;
 }
+)()
 
-// Function to check if a player has won
-function checkWinner(player) {
-  // Check rows
+const UICtrl = (function () {
+  const UISelector = {
+    cell00: "#cell-0-0",
+    cell01: "#cell-0-1",
+    cell02: "#cell-0-2",
+    cell10: "#cell-1-0",
+    cell11: "#cell-1-1",
+    cell12: "#cell-1-2",
+    cell20: "#cell-2-0",
+    cell21: "#cell-2-1",
+    cell22: "#cell-2-2",
+    message: "#message",
+    restartBtn: "#restart-btn",
+  }
+  return {
+    UISelector,
+    placeMark: function (row, col) {
+      const player = GameCtrl.getCurrentPlayer()
+      document.querySelector(`#cell-${row}-${col}`).textContent = player
+      if (player === 'X') {
+        document.querySelector(`#cell-${row}-${col}`).classList.add('red')
+      } else {
+        document.querySelector(`#cell-${row}-${col}`).classList.add('green')
+      }
+    },
+    setMessage: function (msg) {
+      document.querySelector(UISelector.message).textContent = msg
+    },
+    resetUI: function () {
+      for (let row = 0; row < 3; row++) {
+        for (let col = 0; col < 3; col++) {
+          document.querySelector(`#cell-${row}-${col}`).textContent = ""
+          document.querySelector(`#cell-${row}-${col}`).classList.remove('red')
+          document.querySelector(`#cell-${row}-${col}`).classList.remove('green')
+        }
+      }
+      this.setMessage("")
+    }
+  }
+})()
+
+const App = (function (GameCtrl, UICtrl) {
+  UISelector = UICtrl.UISelector
   for (let row = 0; row < 3; row++) {
-    if (board[row][0] === player && board[row][1] === player && board[row][2] === player) {
-      return true;
+    for (let col = 0; col < 3; col++) {
+      document
+        .querySelector(`#cell-${row}-${col}`)
+        .addEventListener("click", () => makeMove(row, col))
     }
   }
 
-  // Check columns
-  for (let col = 0; col < 3; col++) {
-    if (board[0][col] === player && board[1][col] === player && board[2][col] === player) {
-      return true;
+  document.querySelector(UISelector.restartBtn).addEventListener('click', resetGame)
+
+  function makeMove(row, col) {
+    if (!GameCtrl.getGameOver() && GameCtrl.getCellData(row, col) === "") {
+      GameCtrl.markBoard(row, col)
+      UICtrl.placeMark(row, col)
+      if (GameCtrl.checkWinner(GameCtrl.getCurrentPlayer())) {
+        UICtrl.setMessage(`Player ${GameCtrl.getCurrentPlayer()} wins!!`)
+        GameCtrl.setGameOver(true)
+      } else if (GameCtrl.isBoardFull()) {
+        UICtrl.setMessage(`It's a tie!!`)
+        GameCtrl.setGameOver(true)
+      }
+      GameCtrl.changePlayer()
     }
   }
 
-  // Check diagonals
-  if (board[0][0] === player && board[1][1] === player && board[2][2] === player) {
-    return true;
+  function resetGame() {
+    GameCtrl.resetBoard()
+    GameCtrl.setCurrentPlayer('X')
+    GameCtrl.setGameOver(false)
+    UICtrl.resetUI()
   }
-  if (board[0][2] === player && board[1][1] === player && board[2][0] === player) {
-    return true;
-  }
 
-  return false;
-}
-
-// Function to handle a move
-function makeMove(row, col) {
-  if (board[row][col] === '' && !gameOver) {
-    board[row][col] = currentPlayer;
-    updateUI();
-
-    if (checkWinner(currentPlayer)) {
-      document.getElementById('message').textContent = `Player ${currentPlayer} wins!`;
-      gameOver = true;
-    } else if (isBoardFull()) {
-      document.getElementById('message').textContent = "It's a tie!";
-      gameOver = true;
+  return {
+    init: function () {
+      resetGame()
     }
-
-    currentPlayer = currentPlayer === 'X' ? 'O' : 'X';
   }
-}
 
-// Function to restart the game
-function restartGame() {
-  board = [['', '', ''], ['', '', ''], ['', '', '']];
-  currentPlayer = 'X';
-  gameOver = false;
-  document.getElementById('message').textContent = '';
-  updateUI();
-}
+})(GameCtrl, UICtrl)
 
-// Initialize the UI
-updateUI();
+App.init()

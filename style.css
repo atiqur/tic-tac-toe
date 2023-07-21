@@ -1,3 +1,8 @@
+body {
+  font-family: 'Roboto', sans-serif;
+  text-decoration: none;
+}
+
 #board {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -23,9 +28,18 @@ h1 {
   cursor: pointer;
 }
 
+.red {
+  background-color: red;
+}
+
+.green {
+  background-color: green;
+}
+
 #message {
   font-size: 24px;
   margin-top: 20px;
+  height: 30px;
   text-align: center;
 }
 
@@ -40,7 +54,7 @@ h1 {
   display: block;
   font-size: 24px;
   margin: 0 auto;
-  margin-top: 40px;
+  margin-top: 20px;
   cursor: pointer;
 }
 
