@@ -1,5 +1,5 @@
 body {
-  font-family: 'Roboto', sans-serif;
+  font-family: "Roboto", sans-serif;
   text-decoration: none;
 }
 
@@ -29,11 +29,17 @@ h1 {
 }
 
 .red {
-  background-color: red;
+  background-color: rgb(91, 201, 63);
 }
 
 .green {
-  background-color: green;
+  background-color: rgb(125, 100, 194);
+}
+
+.mark-win {
+  color: yellow;
+  background-color: #ff000d;
+  font-weight: 900;
 }
 
 #message {
@@ -44,7 +50,7 @@ h1 {
 }
 
 #restart-btn {
-  background-color: #4CAF50;
+  background-color: #4caf50;
   border: none;
   border-radius: 5px;
   color: white;

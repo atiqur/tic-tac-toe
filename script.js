@@ -47,19 +47,49 @@ const GameCtrl = (function () {
     checkWinner: function (player) {
       for (let i = 0; i < 3; i++) {
         if (data.board[i][0] === player && data.board[i][1] === player && data.board[i][2] === player) {
-          return true
+          return {
+            status: true,
+            winningCells: {
+              cell1: [i, 0],
+              cell2: [i, 1],
+              cell3: [i, 2]
+            }
+          }
         }
         if (data.board[0][i] === player && data.board[1][i] === player && data.board[2][i] === player) {
-          return true
+          return {
+            status: true,
+            winningCells: {
+              cell1: [0, i],
+              cell2: [1, i],
+              cell3: [2, i]
+            }
+          }
         }
       }
       if (data.board[0][0] === player && data.board[1][1] === player && data.board[2][2] === player) {
-        return true
+        return {
+          status: true,
+          winningCells: {
+            cell1: [0, 0],
+            cell2: [1, 1],
+            cell3: [2, 2]
+          }
+        }
       }
       if (data.board[0][2] === player && data.board[1][1] === player && data.board[2][0] === player) {
-        return true
+        return {
+          status: true,
+          winningCells: {
+            cell1: [0, 2],
+            cell2: [1, 1],
+            cell3: [2, 0]
+          }
+        }
       }
-      return false
+      return {
+        status: false
+      }
     },
     resetBoard: function () {
       for (let row = 0; row < 3; row++) {
@@ -100,12 +130,18 @@ const UICtrl = (function () {
     setMessage: function (msg) {
       document.querySelector(UISelector.message).textContent = msg
     },
+    markWinningCells: function (cells) {
+      document.querySelector(`#cell-${cells.cell1[0]}-${cells.cell1[1]}`).classList.add('mark-win')
+      document.querySelector(`#cell-${cells.cell2[0]}-${cells.cell2[1]}`).classList.add('mark-win')
+      document.querySelector(`#cell-${cells.cell3[0]}-${cells.cell3[1]}`).classList.add('mark-win')
+    },
     resetUI: function () {
       for (let row = 0; row < 3; row++) {
         for (let col = 0; col < 3; col++) {
           document.querySelector(`#cell-${row}-${col}`).textContent = ""
           document.querySelector(`#cell-${row}-${col}`).classList.remove('red')
           document.querySelector(`#cell-${row}-${col}`).classList.remove('green')
+          document.querySelector(`#cell-${row}-${col}`).classList.remove('mark-win')
         }
       }
       this.setMessage("")
@@ -129,7 +165,8 @@ const App = (function (GameCtrl, UICtrl) {
     if (!GameCtrl.getGameOver() && GameCtrl.getCellData(row, col) === "") {
       GameCtrl.markBoard(row, col)
       UICtrl.placeMark(row, col)
-      if (GameCtrl.checkWinner(GameCtrl.getCurrentPlayer())) {
+      if (GameCtrl.checkWinner(GameCtrl.getCurrentPlayer()).status) {
+        UICtrl.markWinningCells(GameCtrl.checkWinner(GameCtrl.getCurrentPlayer()).winningCells)
         UICtrl.setMessage(`Player ${GameCtrl.getCurrentPlayer()} wins!!`)
         GameCtrl.setGameOver(true)
       } else if (GameCtrl.isBoardFull()) {
